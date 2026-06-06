@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SiyAI — Memory Films</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   SiyAI — Design Tokens
+   ============================================================ */
+:root{
+  --orange:#E67339; --orange-deep:#CF5F2A; --orange-soft:#F4D9C5;
+  --green:#2A9570; --green-bright:#40E0B0; --gold:#C9A24B;
+  --ink:#1C1813; --ink-soft:#4E473D; --muted:#90897D; --muted-2:#B4AC9C;
+  --line:#EBE4D6; --line-strong:#E1D9C8;
+  --paper:#F7F3EB; --paper-2:#FCFAF4;
+  --cream:#EFE6D4; --cream-tile:#FAF6EC; --ivory:#FBF9F3;
+  --blue-card:#EBF2F8; --legacy:#160C04;
+  --navy:#0E121E; --navy-2:#0A0D17; --footer:#0C0E15;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  --r-pill:999px;
+  --shadow-card:0 2px 6px rgba(46,32,14,.03), 0 32px 70px -36px rgba(46,32,14,.17);
+  --shadow-pop:0 54px 110px -46px rgba(46,32,14,.30);
+  --wrap:1280px;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;}
+img{display:block;max-width:100%;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+a{color:inherit;text-decoration:none;}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 48px;}
+.page{min-height:100vh;background:var(--paper);overflow-x:clip;transition:background-color .4s ease;}
+.footer{overflow:hidden;}
+
+/* gallery frame */
+body::after{content:"";position:fixed;inset:13px;z-index:300;pointer-events:none;border:1px solid rgba(201,162,75,.20);border-radius:6px;}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1);}
+.reveal.in{opacity:1;transform:none;}
+.reveal.d1{transition-delay:.08s;} .reveal.d2{transition-delay:.16s;} .reveal.d3{transition-delay:.24s;}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;}}
+
+/* shared type */
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.34em;text-transform:uppercase;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:14px;}
+.eyebrow::before{content:"";width:30px;height:1px;background:currentColor;opacity:.6;flex:0 0 auto;}
+.h-serif{font-family:var(--serif);font-weight:560;letter-spacing:-.028em;line-height:1.02;color:var(--ink);font-optical-sizing:auto;text-wrap:pretty;}
+.sub{font-size:18px;color:var(--muted);font-weight:330;}
+
+/* buttons */
+.btn{font-family:var(--sans);font-weight:550;font-size:16px;border-radius:var(--r-pill);display:inline-flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap;transition:transform .15s ease, box-shadow .25s ease, background .2s ease, color .2s ease, border-color .2s ease;user-select:none;}
+.btn:active{transform:scale(.975);}
+.btn-primary{background:linear-gradient(180deg,#E48049 0%, #D9692F 100%);color:#fff;height:56px;padding:0 30px;box-shadow:0 1px 0 rgba(255,255,255,.16) inset, 0 12px 30px -16px rgba(150,72,28,.5);letter-spacing:.004em;}
+.btn-primary:hover{box-shadow:0 1px 0 rgba(255,255,255,.16) inset, 0 18px 42px -18px rgba(150,72,28,.62);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--orange);border:1px solid var(--orange);height:56px;padding:0 30px;}
+.btn-ghost:hover{background:var(--orange);color:#fff;}
+.btn-light{background:rgba(255,255,255,.1);color:#fbf4e9;border:1px solid rgba(255,255,255,.25);height:48px;padding:0 24px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);}
+.btn-light:hover{background:rgba(255,255,255,.18);}
+.btn-sm{height:50px;font-size:15px;padding:0 22px;}
+
+/* placeholder */
+.ph{position:absolute;inset:0;z-index:0;}
+.created-card .ph,.prod-media .ph,.device .scr .ph{position:absolute;inset:0;z-index:0;}
+.grain{position:absolute;inset:0;width:100%;height:100%;}
+
+/* =========================================================
+   NAV
+   ========================================================= */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:background .35s ease, box-shadow .35s ease, border-color .35s;border-bottom:1px solid transparent;}
+.nav-inner{max-width:var(--wrap);margin:0 auto;padding:26px 48px;display:flex;align-items:center;gap:30px;}
+.logo{font-family:var(--sans);font-weight:500;font-size:21px;letter-spacing:.42em;color:#fbf4e9;transition:color .35s;}
+.logo .ai{color:var(--gold);}
+.nav-links{display:flex;gap:34px;margin-left:46px;}
+.nav-links a{font-size:15px;font-weight:500;color:rgba(255,255,255,.82);transition:color .2s;position:relative;}
+.nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:-6px;height:1.5px;background:currentColor;transition:right .25s;}
+.nav-links a:hover{color:#fff;}
+.nav-links a:hover::after{right:0;}
+.nav-actions{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.nav.solid{background:rgba(247,243,235,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom-color:var(--line);box-shadow:0 8px 30px -22px rgba(20,16,10,.4);}
+.nav.solid .logo{color:var(--ink);}
+.nav.solid .nav-links a{color:var(--ink-soft);}
+.nav.solid .nav-links a:hover{color:var(--ink);}
+.nav.solid .btn-light{background:transparent;color:var(--ink);border-color:var(--line-strong);}
+.nav.solid .btn-light:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+.theme-toggle{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fbf4e9;border:1px solid rgba(255,255,255,.22);transition:background .25s, color .25s, border-color .25s, transform .2s;}
+.theme-toggle:hover{background:rgba(255,255,255,.12);transform:rotate(-12deg);}
+.theme-toggle:active{transform:scale(.92);}
+.nav.solid .theme-toggle{color:var(--ink);border-color:var(--line-strong);}
+.nav.solid .theme-toggle:hover{background:rgba(0,0,0,.05);}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero{position:relative;color:#fff;padding:148px 0 0;background:radial-gradient(60% 50% at 22% 24%, rgba(255,214,158,.55) 0%, rgba(255,214,158,0) 60%), linear-gradient(178deg, #C9925E 0%, #BE824F 24%, #9A6238 46%, #6E4528 64%, #2C2519 82%, var(--navy) 100%);}
+.hero-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:56px;align-items:center;padding-bottom:34px;}
+.hero-eyebrow{color:rgba(255,255,255,.7);margin-bottom:26px;}
+.hero-eyebrow::before{display:none;}
+.hero-headline{font-family:var(--serif);font-weight:360;font-size:84px;line-height:.96;letter-spacing:-.04em;color:#fdf7ee;text-shadow:0 2px 40px rgba(60,30,10,.25);margin:0;text-wrap:pretty;}
+.hero-headline .films{font-style:italic;font-weight:440;color:var(--green-bright);}
+.hero-lead{font-size:19px;line-height:1.5;color:rgba(255,255,255,.82);max-width:430px;margin:30px 0 0;font-weight:330;}
+.hero-cta-row{display:flex;gap:16px;margin-top:38px;}
+.hero-trust{display:flex;gap:44px;margin-top:48px;padding-top:34px;border-top:1px solid rgba(255,255,255,.16);}
+.hero-trust .t b{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-.01em;display:block;color:#fdf7ee;}
+.hero-trust .t span{font-size:13px;color:rgba(255,255,255,.6);}
+.film-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.film-card{position:relative;overflow:hidden;border-radius:20px;height:262px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;border:1px solid rgba(255,255,255,.16);box-shadow:0 24px 50px -26px rgba(0,0,0,.65);color:#fff;transition:transform .3s cubic-bezier(.2,.7,.2,1);}
+.film-card:nth-child(2){transform:translateY(26px);}
+.film-card:nth-child(3){transform:translateY(-26px);}
+.film-grid:hover .film-card{transform:translateY(0);}
+.film-card:hover{transform:translateY(-6px) scale(1.015)!important;}
+.film-card>*{position:relative;z-index:1;}
+.film-no{font-size:10px;letter-spacing:.26em;font-weight:600;color:rgba(255,255,255,.72);text-transform:uppercase;}
+.film-cap{font-family:var(--serif);font-size:17px;line-height:1.18;font-weight:500;color:#fdfaf4;margin-top:auto;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+.film-foot{display:flex;justify-content:space-between;align-items:center;margin-top:11px;font-size:10px;letter-spacing:.04em;}
+.film-for{color:rgba(255,255,255,.85);font-weight:500;}
+.film-dur{font-variant-numeric:tabular-nums;letter-spacing:.18em;color:rgba(255,255,255,.62);}
+.hero-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:30px 0 56px;}
+.glass-tile{height:128px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:flex-end;padding:22px;transition:background .25s, transform .2s;}
+.glass-tile:hover{background:rgba(255,255,255,.09);transform:translateY(-3px);}
+.glass-tile .gt-n{font-size:11px;letter-spacing:.2em;color:rgba(255,255,255,.5);text-transform:uppercase;}
+.glass-tile span.lbl{font-family:var(--serif);font-size:22px;font-weight:500;color:#f3ede3;}
+.glass-tile .gt-in{display:flex;flex-direction:column;gap:8px;}
+
+/* language strip */
+.lang-strip{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-color:var(--line);padding:16px 0;overflow:hidden;white-space:nowrap;}
+.lang-track{display:inline-flex;align-items:center;gap:48px;animation:marquee 34s linear infinite;}
+.lang-item{display:inline-flex;align-items:center;gap:13px;font-size:17px;}
+.lang-native{font-weight:500;color:var(--ink);}
+.lang-en{color:var(--muted-2);letter-spacing:.04em;}
+.leaf{width:10px;height:10px;border-radius:0 50% 50% 50%;background:var(--green);transform:rotate(45deg);flex:0 0 auto;}
+@keyframes marquee{to{transform:translateX(-50%);}}
+
+/* =========================================================
+   SECTION SCAFFOLD
+   ========================================================= */
+.section{padding:148px 0;}
+.section.tight{padding:112px 0;}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:66px;}
+.sec-head .lead{max-width:560px;display:flex;flex-direction:column;}
+.sec-head .lead .eyebrow{margin-bottom:20px;}
+.sec-head h2{font-size:52px;text-wrap:pretty;letter-spacing:-.028em;}
+.sec-head p.sub{font-size:18px;color:var(--muted);margin:16px 0 0;font-weight:330;}
+.sec-head .eyebrow{color:var(--gold);}
+.see-all{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;display:inline-flex;gap:8px;align-items:center;transition:color .2s,gap .2s;white-space:nowrap;}
+.see-all:hover{color:var(--orange);gap:12px;}
+
+/* =========================================================
+   WHAT WE CREATED
+   ========================================================= */
+.tabs{display:flex;gap:36px;border-bottom:1px solid var(--line);margin-bottom:44px;}
+.tab{position:relative;padding:0 2px 16px;font-size:17px;font-weight:500;color:var(--muted);transition:color .2s;}
+.tab:hover{color:var(--ink-soft);}
+.tab.active{color:var(--ink);font-weight:600;}
+.tab .ink{position:absolute;left:0;right:0;bottom:-1px;height:1.5px;border-radius:2px;background:var(--green);transform:scaleX(0);transition:transform .3s cubic-bezier(.2,.7,.2,1);}
+.tab.active .ink{transform:scaleX(1);}
+.created-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.created-card{position:relative;overflow:hidden;border-radius:26px;height:460px;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:26px;box-shadow:var(--shadow-card);transition:transform .3s ease, box-shadow .3s ease;}
+.created-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-pop);}
+.created-card .veil{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,9,14,0) 36%,rgba(8,9,14,.74) 78%,rgba(8,9,14,.94) 100%);}
+.created-card>*{position:relative;z-index:2;}
+.created-name{font-family:var(--serif);font-size:24px;font-weight:540;letter-spacing:-.01em;line-height:1.16;}
+.created-name .arr{color:var(--orange);font-weight:500;}
+.created-meta{font-size:14px;color:rgba(255,255,255,.66);margin-top:9px;line-height:1.3;}
+.created-card .btn{margin-top:20px;width:100%;}
+.stats-band{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:64px;padding-top:48px;border-top:1px solid var(--line);}
+.stat b{display:block;font-family:var(--serif);font-size:46px;font-weight:500;letter-spacing:-.02em;}
+.stat span{font-size:15px;color:var(--muted);}
+
+/* =========================================================
+   PRODUCTS
+   ========================================================= */
+.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.prod-card{border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#FFFFFF;display:flex;flex-direction:column;transition:transform .25s, box-shadow .3s, border-color .25s;}
+.prod-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-card);border-color:transparent;}
+.prod-media{height:172px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:14px;}
+.prod-media>*{position:relative;z-index:1;}
+.badge-row{display:flex;justify-content:space-between;align-items:center;}
+.badge{font-size:11px;letter-spacing:.04em;font-weight:600;color:#3a3d45;background:rgba(255,255,255,.82);padding:5px 10px;border-radius:999px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);white-space:nowrap;}
+.badge.stock{color:var(--orange-deep);align-self:flex-end;margin-top:auto;}
+.prod-body{padding:20px 20px 22px;display:flex;flex-direction:column;gap:11px;flex:1;}
+.prod-name{font-family:var(--serif);font-size:23px;font-weight:540;letter-spacing:-.01em;line-height:1;}
+.prod-desc{font-size:14px;line-height:1.4;color:var(--ink-soft);}
+.prod-rate{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--ink-soft);}
+.prod-rate .star{color:var(--ink);}
+.prod-rate .n{color:var(--muted-2);}
+.prod-price{display:flex;align-items:baseline;gap:9px;}
+.prod-price b{font-size:23px;font-weight:600;letter-spacing:-.01em;}
+.prod-price s{font-size:15px;color:var(--muted-2);}
+.prod-deliver{font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;}
+.prod-card .btn{margin-top:6px;width:100%;}
+
+/* =========================================================
+   MOMENTS (dark)
+   ========================================================= */
+.dark-sec{background:radial-gradient(80% 60% at 8% 0%, rgba(201,162,75,.13) 0%, rgba(201,162,75,0) 50%), linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%);color:#fff;}
+.dark-sec .h-serif, .dark-sec .sec-head h2{color:#fff;}
+.dark-sec .sec-head .eyebrow{color:rgba(255,255,255,.5);}
+.moment-title .gold{color:var(--gold);}
+.moment-sub{color:rgba(255,255,255,.5);}
+.moment-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.moment-tile{background:#F6F1E6;border-radius:18px;height:128px;display:flex;align-items:flex-end;padding:22px;font-family:var(--serif);font-size:22px;font-weight:540;color:var(--ink);letter-spacing:-.01em;transition:transform .2s, box-shadow .3s, background .2s;position:relative;overflow:hidden;cursor:pointer;}
+.moment-tile:hover{transform:translateY(-4px);box-shadow:0 20px 40px -20px rgba(0,0,0,.5);}
+.moment-tile.sel{background:#fff;box-shadow:0 0 0 2px var(--orange), 0 20px 40px -18px rgba(0,0,0,.6);}
+.moment-tile .dot{position:absolute;top:18px;right:18px;width:10px;height:10px;border-radius:50%;background:var(--orange);opacity:0;transform:scale(.4);transition:.2s;}
+.moment-tile.sel .dot{opacity:1;transform:none;}
+
+/* =========================================================
+   HOW IT WORKS
+   ========================================================= */
+.how{text-align:center;}
+.how .eyebrow{display:inline-flex;margin-bottom:22px;justify-content:center;}
+.how-title{font-family:var(--serif);font-size:74px;font-weight:760;line-height:.98;letter-spacing:-.035em;text-wrap:pretty;}
+.how-title .accent{color:var(--green);}
+.steps-row{display:grid;grid-template-columns:repeat(3,1fr);gap:50px;margin-top:74px;max-width:1000px;margin-left:auto;margin-right:auto;}
+.step{display:flex;flex-direction:column;align-items:center;}
+.device{width:248px;aspect-ratio:9/19.2;border-radius:42px;background:#0d1018;padding:10px;box-shadow:0 40px 70px -34px rgba(20,16,10,.55), 0 0 0 1px rgba(20,16,10,.06);position:relative;transition:transform .4s cubic-bezier(.2,.7,.2,1);}
+.step:hover .device{transform:translateY(-10px);}
+.device .scr{width:100%;height:100%;border-radius:33px;overflow:hidden;position:relative;}
+.device .notch{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:96px;height:28px;background:#0d1018;border-radius:16px;z-index:3;}
+.step-num{margin-top:30px;font-size:13px;letter-spacing:.4em;color:var(--muted-2);font-variant-numeric:tabular-nums;}
+.step-label{font-family:var(--serif);font-size:28px;font-weight:540;margin-top:10px;}
+.step-desc{font-size:15px;color:var(--muted);margin-top:10px;max-width:220px;line-height:1.5;}
+
+/* =========================================================
+   SIYAI WAY
+   ========================================================= */
+.way-title{font-family:var(--serif);font-size:56px;font-weight:600;text-align:center;letter-spacing:-.028em;text-wrap:pretty;}
+.way-card{margin-top:56px;background:var(--cream);border-radius:30px;padding:60px 56px;display:grid;grid-template-columns:repeat(4,1fr);gap:44px;border:1px solid rgba(201,162,75,.24);box-shadow:0 40px 90px -50px rgba(46,32,14,.25);}
+.way-item .ic{width:34px;height:34px;color:var(--ink);}
+.way-item h4{font-family:var(--sans);font-size:19px;font-weight:600;margin:22px 0 10px;letter-spacing:-.01em;line-height:1.2;}
+.way-item p{font-size:15px;line-height:1.5;color:var(--ink-soft);margin:0;}
+
+/* =========================================================
+   LOVE
+   ========================================================= */
+.love-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+.love-card{border-radius:26px;padding:36px 34px;display:flex;flex-direction:column;min-height:260px;box-shadow:var(--shadow-card);transition:transform .25s;border:1px solid rgba(28,24,19,.05);}
+.love-card:hover{transform:translateY(-5px);}
+.love-card.c0{background:var(--ivory);}
+.love-card.c1{background:var(--blue-card);}
+.love-card.c2{background:#F3EEE6;}
+.love-stars{color:var(--ink);letter-spacing:3px;font-size:15px;}
+.love-quote{font-family:var(--serif);font-size:27px;font-weight:520;line-height:1.2;letter-spacing:-.028em;margin:20px 0 auto;text-wrap:pretty;}
+.love-by{display:flex;justify-content:space-between;align-items:flex-end;margin-top:28px;}
+.love-name{font-weight:600;font-size:16px;}
+.love-loc{font-size:14px;color:var(--muted);}
+.love-tag{font-size:12px;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;text-align:right;}
+
+/* =========================================================
+   NOT SURE
+   ========================================================= */
+.notsure-wrap{padding:0 48px;max-width:var(--wrap);margin:0 auto;}
+.notsure{background:radial-gradient(80% 120% at 85% 10%, rgba(230,115,57,.16), rgba(230,115,57,0) 55%), var(--cream);border-radius:30px;padding:74px 60px;text-align:center;border:1px solid rgba(201,162,75,.24);}
+.notsure h3{font-family:var(--serif);font-size:48px;font-weight:600;letter-spacing:-.025em;line-height:1.04;text-wrap:pretty;}
+.notsure p{font-size:19px;line-height:1.5;color:var(--ink-soft);margin:20px auto 34px;max-width:520px;}
+
+/* =========================================================
+   MORE FROM SIYAI
+   ========================================================= */
+.more-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;}
+.more-card{border-radius:28px;padding:48px 44px;position:relative;overflow:hidden;min-height:280px;display:flex;flex-direction:column;}
+.more-card .lbl{font-size:12px;letter-spacing:.26em;font-weight:600;text-transform:uppercase;display:inline-flex;align-items:center;gap:12px;}
+.more-card .lbl::before{content:"";width:22px;height:1.5px;background:currentColor;display:inline-block;opacity:.6;}
+.more-name{font-family:var(--serif);font-size:44px;font-weight:560;line-height:1.0;margin-top:22px;letter-spacing:-.028em;text-wrap:pretty;}
+.more-name b{font-weight:560;display:block;}
+.more-sub{font-size:16px;line-height:1.5;margin-top:16px;max-width:360px;}
+.more-pill{align-self:flex-start;margin-top:auto;background:#fff;color:var(--ink);font-weight:600;font-size:15px;padding:14px 28px;border-radius:999px;transition:transform .15s, box-shadow .25s;cursor:pointer;}
+.more-pill:hover{transform:translateY(-2px);box-shadow:0 12px 24px -12px rgba(0,0,0,.4);}
+.more-card.capsule{background:radial-gradient(80% 120% at 90% 8%, rgba(120,160,210,.42), rgba(120,160,210,0) 55%), var(--blue-card);}
+.more-card.capsule .lbl{color:#4d6b9e;}
+.more-card.capsule .more-name{color:var(--ink);}
+.more-card.capsule .more-name b{color:#4d6b9e;}
+.more-card.capsule .more-sub{color:var(--ink-soft);}
+.more-card.legacy{background:radial-gradient(70% 120% at 6% 8%, rgba(201,162,75,.3), rgba(201,162,75,0) 55%), var(--legacy);color:#efe6d6;}
+.more-card.legacy .lbl{color:var(--gold);}
+.more-card.legacy .more-name{color:#f2ead9;}
+.more-card.legacy .more-name b{color:var(--gold);}
+.more-card.legacy .more-sub{color:rgba(239,230,214,.6);}
+.more-card.legacy .more-pill{background:rgba(201,162,75,.16);color:#e7d6ad;border:1px solid rgba(201,162,75,.3);}
+
+/* =========================================================
+   NOTE
+   ========================================================= */
+.note{text-align:center;max-width:760px;margin:0 auto;}
+.note .eyebrow{display:inline-flex;margin-bottom:24px;justify-content:center;}
+.note p{font-size:26px;line-height:1.5;color:var(--ink);letter-spacing:-.01em;margin:0 0 22px;}
+.note-cta{display:flex;gap:16px;justify-content:center;margin-top:40px;}
+.sign{margin-top:48px;}
+.sign-mono{display:flex;gap:30px;justify-content:center;font-family:var(--serif);font-size:28px;font-weight:600;color:var(--ink);}
+.sign-by{font-size:13px;letter-spacing:.2em;color:var(--muted);margin-top:16px;text-transform:uppercase;}
+
+/* =========================================================
+   FAQ
+   ========================================================= */
+.faq-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:60px;align-items:start;}
+.faq-title{font-family:var(--serif);font-size:52px;font-weight:600;letter-spacing:-.028em;position:sticky;top:120px;text-wrap:pretty;}
+.faq-title .sub{display:block;font-family:var(--sans);font-size:17px;font-weight:400;color:var(--muted);margin-top:18px;letter-spacing:0;}
+.faq-item{border-bottom:1px solid var(--line-strong);}
+.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 0;text-align:left;font-size:21px;font-weight:500;color:var(--ink);letter-spacing:-.01em;transition:color .2s;}
+.faq-q:hover{color:var(--orange);}
+.faq-q .chev{flex:0 0 auto;transition:transform .3s, color .2s;color:var(--ink);}
+.faq-q:hover .chev{color:var(--orange);}
+.faq-item.open .faq-q .chev{transform:rotate(180deg);}
+.faq-a{overflow:hidden;max-height:0;transition:max-height .35s ease;}
+.faq-a-inner{padding:0 40px 30px 0;font-size:16px;line-height:1.6;color:var(--ink-soft);}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.footer{background:var(--footer);color:#cdd0d8;padding:96px 0 0;border-top:1px solid rgba(201,162,75,.14);}
+.footer .logo{color:#eef0f4;font-size:26px;margin-bottom:22px;}
+.foot-eyebrow{font-size:12px;letter-spacing:.32em;color:#5a5f6c;text-transform:uppercase;font-weight:600;}
+.foot-grid{display:grid;grid-template-columns:1.6fr .7fr .7fr;gap:60px;}
+.foot-lead{font-family:var(--serif);font-size:32px;font-weight:500;line-height:1.2;letter-spacing:-.01em;color:#e8eaf0;margin:20px 0 16px;max-width:440px;}
+.foot-desc{font-size:15.5px;color:#8b909c;line-height:1.55;margin:0;max-width:380px;}
+.foot-col h5{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#5a5f6c;font-weight:600;margin:6px 0 22px;}
+.foot-links{display:flex;flex-direction:column;gap:16px;font-size:16px;color:#c4c8d1;}
+.foot-links a{transition:color .2s;width:fit-content;cursor:pointer;}
+.foot-links a:hover{color:#fff;}
+.foot-rule{height:1px;background:rgba(255,255,255,.08);margin:64px 0 26px;}
+.foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#4f5462;padding-bottom:30px;}
+.foot-big{font-family:var(--serif);font-size:clamp(48px,9vw,128px);font-weight:500;color:rgba(255,255,255,.06);letter-spacing:-.02em;line-height:1;text-align:center;padding:40px 0 56px;white-space:nowrap;overflow:hidden;}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:34px;z-index:200;transform:translate(-50%,18px);background:rgba(18,20,28,.95);color:#fff;font-size:15px;font-weight:500;padding:15px 26px;border-radius:999px;box-shadow:0 22px 50px -18px rgba(0,0,0,.6);opacity:0;visibility:hidden;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:opacity .3s ease, transform .3s cubic-bezier(.2,.7,.2,1), visibility .3s;white-space:nowrap;}
+.toast.show{opacity:1;visibility:visible;transform:translate(-50%,0);}
+
+/* smooth theme transitions */
+body,.nav,.lang-strip,.section,.prod-card,.way-card,.love-card,.more-card,.faq-q,.moment-tile,.device,.btn-light,.theme-toggle{transition-property:background-color,border-color,color,box-shadow;transition-duration:.4s;transition-timing-function:ease;}
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+body.dark{
+  --paper:#0E121C; --paper-2:#0A0E17;
+  --ink:#ECEEF2; --ink-soft:#AAAEB9;
+  --muted:#7C808B; --muted-2:#565A64;
+  --line:rgba(255,255,255,.08); --line-strong:rgba(255,255,255,.13);
+  --cream:#17130D; --cream-tile:#F4EEE0;
+  --ivory:#141826; --blue-card:#111A26;
+  background:var(--paper);color:var(--ink);
+}
+body.dark .nav.solid{background:rgba(12,16,25,.82);border-bottom-color:rgba(255,255,255,.08);}
+body.dark .lang-strip{background:#0B0F18;border-color:rgba(255,255,255,.07);}
+body.dark .love-card.c2{background:#16130E;}
+body.dark .moment-tile{color:#1b1712;}
+body.dark .more-pill{color:#15171E;}
+body.dark .more-card.capsule .lbl, body.dark .more-card.capsule .more-name b{color:#7BA6D8;}
+body.dark .notsure{background:radial-gradient(80% 120% at 85% 10%, rgba(230,115,57,.2), rgba(230,115,57,0) 55%), var(--cream);}
+body.dark .way-card{box-shadow:inset 0 0 0 1px rgba(255,255,255,.04);}
+body.dark .dof-chip{background:var(--paper-2);}
+body.dark .dof-input{background:var(--paper-2);color:var(--ink);}
+body.dark .dof-summary{background:var(--paper-2);}
+
+/* =========================================================
+   ORDER MODAL
+   ========================================================= */
+.dof-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;padding:32px;background:rgba(18,12,5,.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);opacity:0;visibility:hidden;transition:opacity .35s ease, visibility .35s;}
+.dof-overlay.show{opacity:1;visibility:visible;}
+.dof-modal{width:920px;max-width:100%;max-height:90vh;background:var(--paper);border-radius:28px;overflow:hidden;display:grid;grid-template-columns:340px 1fr;box-shadow:0 60px 120px -40px rgba(20,14,6,.6), 0 0 0 1px rgba(201,162,75,.2);transform:translateY(24px) scale(.97);opacity:0;transition:transform .42s cubic-bezier(.2,.8,.2,1), opacity .42s ease;}
+.dof-modal.in{transform:none;opacity:1;}
+.dof-rail{position:relative;padding:34px 30px;color:#fff;display:flex;flex-direction:column;overflow:hidden;}
+.dof-rail-veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,9,14,.28) 0%,rgba(8,9,14,.55) 60%,rgba(8,9,14,.78) 100%);z-index:0;}
+.dof-rail>*{position:relative;z-index:1;}
+.dof-rail .logo{color:#fbf4e9;font-size:18px;letter-spacing:.4em;}
+.dof-rail .logo .ai{color:var(--gold);}
+.dof-rail-mid{margin-top:auto;}
+.dof-rail-kicker{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.66);font-weight:600;}
+.dof-rail-name{font-family:var(--serif);font-size:32px;font-weight:560;letter-spacing:-.02em;margin-top:8px;line-height:1.04;}
+.dof-rail-price{margin-top:12px;display:flex;align-items:baseline;gap:10px;}
+.dof-rail-price b{font-size:26px;font-weight:600;}
+.dof-rail-price s{font-size:15px;color:rgba(255,255,255,.6);}
+.dof-trust{list-style:none;margin:26px 0 0;padding:24px 0 0;border-top:1px solid rgba(255,255,255,.18);display:flex;flex-direction:column;gap:15px;}
+.dof-trust li{display:flex;align-items:center;gap:12px;font-size:13.5px;color:rgba(255,255,255,.9);font-weight:450;}
+.dof-trust li svg{width:18px;height:18px;flex:0 0 auto;color:var(--gold);}
+.dof-main{position:relative;padding:40px 44px 36px;display:flex;flex-direction:column;min-height:560px;overflow-y:auto;scrollbar-width:none;}
+.dof-main::-webkit-scrollbar{display:none;}
+.dof-x{position:absolute;top:22px;right:24px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:24px;color:var(--muted);transition:background .2s,color .2s;}
+.dof-x:hover{background:var(--line);color:var(--ink);}
+.dof-dots{display:flex;gap:8px;margin-bottom:30px;}
+.dof-dot{width:8px;height:8px;border-radius:99px;background:var(--line-strong);transition:width .3s, background .3s;}
+.dof-dot.cur{width:28px;background:var(--orange);}
+.dof-dot.done{background:var(--gold);}
+.dof-step{animation:dofIn .4s cubic-bezier(.2,.7,.2,1) both;}
+@keyframes dofIn{from{transform:translateX(16px);}to{transform:none;}}
+.dof-title{font-family:var(--serif);font-size:34px;font-weight:560;letter-spacing:-.025em;margin:0;}
+.dof-sub{font-size:16px;color:var(--muted);margin:10px 0 28px;line-height:1.45;}
+.dof-sub b{color:var(--ink-soft);font-weight:600;}
+.dof-chips{display:flex;flex-wrap:wrap;gap:12px;}
+.dof-chip{padding:13px 22px;border-radius:99px;border:1px solid var(--line-strong);background:#fff;font-size:15.5px;font-weight:500;color:var(--ink-soft);transition:all .18s ease;cursor:pointer;}
+.dof-chip:hover{border-color:var(--muted-2);transform:translateY(-1px);}
+.dof-chip.on{background:var(--ink);color:#fff;border-color:var(--ink);transform:translateY(-1px);box-shadow:0 10px 22px -12px rgba(20,16,10,.55);}
+.dof-fields{display:flex;flex-direction:column;}
+.dof-row2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.dof-label{font-size:12.5px;letter-spacing:.04em;font-weight:600;color:var(--ink-soft);margin:22px 0 9px;display:block;}
+.dof-label span{color:var(--muted-2);font-weight:400;}
+.dof-input{width:100%;height:54px;border-radius:14px;border:1px solid var(--line-strong);background:#fff;padding:0 18px;font-family:var(--sans);font-size:16px;color:var(--ink);transition:border-color .2s, box-shadow .2s;}
+.dof-input::placeholder{color:var(--muted-2);}
+.dof-input:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px rgba(230,115,57,.12);}
+.dof-summary{margin-top:28px;border:1px solid var(--line);border-radius:16px;background:var(--paper-2);padding:6px 20px;}
+.dof-srow{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line);font-size:15px;color:var(--muted);}
+.dof-srow:last-child{border-bottom:none;}
+.dof-srow b{color:var(--ink);font-weight:600;}
+.dof-srow.total span{color:var(--ink);font-weight:600;}
+.dof-srow.total b{font-family:var(--serif);font-size:22px;}
+.dof-foot{margin-top:auto;padding-top:30px;display:flex;flex-direction:column;gap:16px;align-items:flex-start;}
+.dof-actions{display:flex;gap:14px;align-items:center;width:100%;}
+.dof-back{display:inline-flex;align-items:center;gap:7px;height:56px;padding:0 22px;border-radius:99px;border:1px solid var(--line-strong);background:#fff;font-weight:550;font-size:15px;color:var(--ink-soft);transition:background .2s;cursor:pointer;}
+.dof-back:hover{background:var(--line);}
+.dof-next{flex:1;height:56px;}
+.dof-next:disabled{opacity:.4;pointer-events:none;}
+.dof-wa{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--muted);transition:color .2s,gap .2s;cursor:pointer;}
+.dof-wa:hover{color:var(--green);gap:11px;}
+.dof-wa svg{width:15px;height:15px;}
+.dof-done{display:flex;flex-direction:column;align-items:center;text-align:center;margin:auto 0;padding:20px 0;animation:dofIn .4s ease both;}
+.dof-check{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(180deg,var(--green-bright),var(--green));box-shadow:0 16px 34px -14px rgba(42,149,112,.7);margin-bottom:24px;}
+.dof-check svg{width:36px;height:36px;}
+.dof-done .dof-title{font-size:32px;}
+.dof-done .dof-sub{margin:12px auto 0;max-width:380px;}
+.dof-hand{margin-top:28px;text-align:left;width:100%;max-width:440px;background:linear-gradient(180deg,#F1F8F3,#E9F4EC);border:1px solid rgba(42,149,112,.22);border-radius:18px;padding:20px 22px;}
+.dof-hand-row{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px;color:#1c6647;}
+.dof-hand p{font-size:14px;line-height:1.55;color:#3d6b56;margin:9px 0 0;}
+.dof-done-cta{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px;width:100%;max-width:440px;}
+.dof-done-cta .dof-next{width:100%;flex:none;}
+@media (prefers-reduced-motion:reduce){.dof-step,.dof-done,.dof-check,.dof-modal{animation:none!important;transform:none!important;opacity:1!important;}}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width:1080px){
+  .hero-grid{grid-template-columns:1fr;gap:40px;}
+  .hero-headline{font-size:68px;}
+  .created-grid{grid-template-columns:repeat(2,1fr);}
+  .prod-grid{grid-template-columns:repeat(2,1fr);}
+  .moment-grid{grid-template-columns:repeat(2,1fr);}
+  .way-card{grid-template-columns:repeat(2,1fr);}
+  .love-grid{grid-template-columns:1fr;}
+  .steps-row{grid-template-columns:1fr;gap:60px;}
+  .more-grid,.foot-grid{grid-template-columns:1fr;}
+  .faq-grid{grid-template-columns:1fr;gap:30px;}
+  .faq-title{position:static;}
+  .nav-links{display:none;}
+}
+@media (max-width:720px){
+  .dof-modal{grid-template-columns:1fr;max-height:94vh;}
+  .dof-rail{padding:24px 26px;flex-direction:row;align-items:center;gap:16px;}
+  .dof-rail-mid{margin:0;}
+  .dof-rail-name{font-size:22px;}
+  .dof-trust{display:none;}
+  .dof-main{padding:28px 26px;min-height:0;}
+  .dof-row2{grid-template-columns:1fr;}
+}
+@media (max-width:560px){
+  .wrap,.nav-inner,.notsure-wrap{padding-left:20px;padding-right:20px;}
+  body::after{inset:8px;}
+  .nav-inner{padding:16px 20px;gap:12px;}
+  .nav-talk{display:none;}
+  .nav-cta-long{display:none;}
+  .nav-actions{gap:10px;}
+  .theme-toggle{width:42px;height:42px;}
+  .logo{letter-spacing:.3em;font-size:18px;}
+  .hero{padding-top:96px;}
+  .hero-headline{font-size:48px;}
+  .hero-lead{font-size:17px;margin-top:24px;}
+  .hero-cta-row{flex-direction:column;gap:12px;}
+  .hero-cta-row .btn{width:100%;}
+  .hero-trust{flex-wrap:wrap;gap:22px 32px;margin-top:36px;padding-top:26px;}
+  .hero-trust .t b{font-size:26px;}
+  .film-grid{gap:12px;}
+  .film-card{height:200px;}
+  .film-card:nth-child(2),.film-card:nth-child(3){transform:none;}
+  .hero-tiles{gap:12px;padding:24px 0 44px;}
+  .glass-tile{height:104px;padding:16px;}
+  .glass-tile span.lbl{font-size:18px;}
+  .section{padding:76px 0;}
+  .section.tight{padding:64px 0;}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:18px;margin-bottom:40px;}
+  .sec-head h2,.way-title,.faq-title,.notsure h3{font-size:34px;}
+  .sec-head p.sub{font-size:16px;}
+  .how-title{font-size:42px;margin-top:6px;}
+  .created-grid,.moment-grid,.way-card,.love-grid{grid-template-columns:1fr;}
+  .prod-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+  .created-card{height:420px;}
+  .way-card{padding:38px 28px;gap:34px;}
+  .steps-row{margin-top:54px;gap:54px;}
+  .more-card{padding:36px 28px;min-height:230px;}
+  .more-name{font-size:36px;}
+  .note p{font-size:21px;}
+  .note-cta{flex-direction:column;}
+  .note-cta .btn{width:100%;}
+  .faq-q{font-size:18px;padding:22px 0;}
+  .foot-grid{gap:44px;}
+  .foot-big{font-size:18vw;}
+  .dof-overlay{padding:0;align-items:flex-end;}
+  .dof-modal{border-radius:26px 26px 0 0;max-height:94vh;width:100%;}
+}
+@media (max-width:400px){
+  .hero-headline{font-size:42px;}
+  .prod-grid{grid-template-columns:1fr;}
+  .sec-head h2,.way-title,.faq-title,.notsure h3{font-size:30px;}
+  .hero-trust .t b{font-size:23px;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+
+<!-- Data -->
+<script>
+const GRAD = {
+  rose:   'radial-gradient(120% 90% at 30% 20%, #caa3a8 0%, #8f6d77 45%, #4a3a47 100%)',
+  amber:  'radial-gradient(120% 90% at 35% 18%, #d3a878 0%, #9a6a44 45%, #4f3622 100%)',
+  warm:   'radial-gradient(120% 90% at 35% 20%, #d8b083 0%, #a87248 48%, #4d3320 100%)',
+  sage:   'radial-gradient(120% 90% at 32% 18%, #b9bf9f 0%, #8a9472 46%, #444b39 100%)',
+  slate:  'radial-gradient(120% 90% at 35% 20%, #aeb8c4 0%, #7b8694 46%, #3a414c 100%)',
+  ink:    'radial-gradient(120% 100% at 30% 12%, #20242f 0%, #14171f 50%, #0c0e14 100%)',
+  emerald:'radial-gradient(120% 90% at 30% 18%, #7fb59c 0%, #3f7d63 48%, #1f3b30 100%)',
+  dusk:   'radial-gradient(120% 90% at 30% 18%, #2b3550 0%, #1a2236 50%, #0d1320 100%)',
+  beige:  'linear-gradient(160deg, #ece3d2 0%, #ddd0b8 100%)',
+  goldwarm:'radial-gradient(110% 90% at 35% 18%, #d6a96f 0%, #b07c45 45%, #6a4526 100%)',
+  night:  'radial-gradient(110% 80% at 50% 12%, #163b39 0%, #0f1c28 45%, #0a0e16 100%)',
+};
+const FILMS = [
+  {no:'N° 012', grad:GRAD.rose,  cap:'Her hands, kneading, like always.', who:'For Maa · Karwa', dur:'02:46'},
+  {no:'N° 014', grad:GRAD.warm,  cap:'The road from Patna, in his own words.', who:'For Papa · 60th', dur:'01:48'},
+  {no:'N° 017', grad:GRAD.sage,  cap:'The kitchen, the radio, the afternoon.', who:'For Dadi, before forgetting', dur:'02:04'},
+  {no:'N° 021', grad:GRAD.slate, cap:'Still the same laugh after 40 years.', who:'For Maa · Anniversary', dur:'01:32'},
+];
+const CREATED = [
+  {grad:GRAD.ink,     name:['Anjali','Papa’s 60th'], meta:'Sepia Dadaji · Voice Letter'},
+  {grad:GRAD.dusk,    name:['Rahul','Mummy'],            meta:'NRI Family · Living Portrait'},
+  {grad:GRAD.emerald, name:['Sneha','Dadi'],             meta:'Kitchen Tapes · Memory Film'},
+  {grad:GRAD.goldwarm,name:['Vikram','Nana ji'],         meta:'War Stories · Custom Song'},
+];
+const TABS = ['All','Papa','Mummy','Dadi-Dadu','Nana-Nani','Partner'];
+const PRODUCTS = [
+  {name:'Memory Film',   desc:'30 seconds of their voice. A message that lives forever.', rate:'4.9', count:'1.6K', price:'299', was:'499', grad:GRAD.goldwarm, off:'40% off', ready:'Ready in 4 hrs'},
+  {name:'Voice Letter',  desc:'An old photograph that blinks, smiles, looks back.',      rate:'4.9', count:'820',  price:'499', was:'799', grad:GRAD.dusk,     off:'38% off', ready:'Ready in 6 hrs', stock:'Only 7 left'},
+  {name:'Custom Song',   desc:'Their story, set to music. A melody they’ll hum for years.', rate:'4.8', count:'1.2K', price:'699', was:'999', grad:GRAD.emerald,  off:'30% off', ready:'Ready in 8 hrs'},
+  {name:'Living Portrait',desc:'An old photograph that blinks, smiles, looks back.',     rate:'4.9', count:'640',  price:'499', was:'799', grad:GRAD.rose,     off:'38% off', ready:'Ready in 6 hrs', stock:'Only 4 left'},
+];
+const MOMENTS = ['Birthday','Anniversary','Diwali','Wedding','Rakhi','Graduation','First Salary','Memorial'];
+const STEPS = [
+  {n:'01', label:'Upload',   grad:GRAD.beige},
+  {n:'02', label:'Preserve', grad:GRAD.goldwarm},
+  {n:'03', label:'Share',    grad:GRAD.night},
+];
+const WAY = [
+  {ic:'people',  h:'Crafted by experts',          p:'Filmmakers, writers and musicians.'},
+  {ic:'shield',  h:'Delivered in 48 hrs–14 days', p:'Made by real filmmakers, writers and musicians.'},
+  {ic:'chat',    h:'Delivered on WhatsApp',        p:'Simple, familiar and instantly shareable.'},
+  {ic:'archive', h:'Archived in your vault',       p:'Re-watch on every anniversary, forever.'},
+];
+const LOVE = [
+  {quote:'Mummy roi, phir hassi. Phir 5 baar suni.', name:'Priya S.', loc:'Mumbai', tag:'Voice Letter · 60s'},
+  {quote:'Papa kept watching it on loop the whole evening.', name:'Arjun M.', loc:'Delhi', tag:'Memory Film · 90s'},
+  {quote:'Dadi recognised her old kitchen. We all cried.', name:'Neha R.', loc:'Pune', tag:'Living Portrait'},
+];
+const FAQS = [
+  {q:'What if Papa doesn’t use WhatsApp?', a:'No problem. We deliver a simple private link he can open on any phone, and we can even mail a keepsake card with a QR code so he just taps and watches.'},
+  {q:'Do I need to send photos?', a:'A few photos help, but they’re optional. Even a single voice note or a short description of the memory is enough for our team to begin crafting.'},
+  {q:'How long does it really take?', a:'Most pieces are ready in 48 hours. More elaborate films with original music or restoration can take up to 14 days — we’ll always tell you the timeline up front.'},
+  {q:'Can you do my language?', a:'Yes. We work in Hindi, Telugu, Tamil, Bengali, Marathi, Punjabi and more — including mixed-language scripts the way your family actually speaks.'},
+  {q:'What happens to my voice notes and photos?', a:'They stay private and encrypted, used only to make your piece. You can ask us to delete the originals at any time, and we never share or train on your memories.'},
+  {q:'What if I don’t love it?', a:'We revise until it feels right. If it still isn’t the memory you imagined, you’re covered by a full refund — no questions asked.'},
+];
+const FOOTER_MAKE = ['Film Your Memory','Voice Letter','Time Capsule','Legacy Vault','About us','The films'];
+const FOOTER_FIND = ['hello@siyai.com','WhatsApp','Instagram'];
+const D_RELATIONS = ['Maa','Papa','Dadi','Dadu','Nana','Nani','Partner','Someone else'];
+const D_OCCASIONS = ['Birthday','Anniversary','Diwali','Wedding','Retirement','Just because'];
+const D_LANGS = ['Hindi','Telugu','Tamil','Bengali','Punjabi','Marathi','English','Mixed'];
+</script>
+
+<!-- App -->
+<script type="text/babel">
+const {useState, useEffect, useRef, useCallback} = React;
+
+/* ---- visual helpers ---- */
+function Grain({opacity=0.5}){
+  return (
+    <svg className="grain" preserveAspectRatio="none" style={{opacity}}>
+      <filter id="grn">
+        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+      </filter>
+      <rect width="100%" height="100%" filter="url(#grn)" opacity="0.5"/>
+    </svg>
+  );
+}
+function Ph({grad, grain=true}){
+  return (
+    <div className="ph" style={{background:grad}}>
+      {grain && <Grain opacity={0.16}/>}
+    </div>
+  );
+}
+
+/* ---- icons ---- */
+const Icon = {
+  people:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M16 19v-1.5A3.5 3.5 0 0 0 12.5 14h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M20 19v-1.4a3.4 3.4 0 0 0-2.6-3.3"/><path d="M15.5 5.2a3.2 3.2 0 0 1 0 6"/></svg>),
+  shield:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3l7 3v5c0 4.6-3 7.6-7 9-4-1.4-7-4.4-7-9V6z"/><path d="M9 12l2 2 4-4.2"/></svg>),
+  chat:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 18l-1.2 2.6L6.4 19A8.5 7.5 0 1 0 4 13.6 7 7 0 0 0 5 18z"/></svg>),
+  archive:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="4" y="4" width="16" height="4" rx="1"/><path d="M5 8v10a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18V8"/><path d="M10 12h4"/></svg>),
+  whatsapp:(p)=>(<svg viewBox="0 0 24 24" fill="currentColor" {...p}><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.4A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-2.9.8.8-2.8-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.25-.13-1.5-.74-1.73-.82s-.4-.13-.57.13-.65.82-.8 1-.3.19-.55.06a6.7 6.7 0 0 1-2-1.22 7.4 7.4 0 0 1-1.36-1.7c-.14-.25 0-.38.11-.5s.25-.3.38-.44a1.7 1.7 0 0 0 .25-.42.46.46 0 0 0 0-.44c-.06-.13-.57-1.38-.78-1.89s-.42-.43-.57-.43l-.49-.01a.94.94 0 0 0-.68.32 2.86 2.86 0 0 0-.9 2.13 4.96 4.96 0 0 0 1.05 2.64 11.4 11.4 0 0 0 4.38 3.87c.61.26 1.09.42 1.46.54a3.5 3.5 0 0 0 1.62.1 2.64 2.64 0 0 0 1.73-1.22 2.14 2.14 0 0 0 .15-1.22c-.06-.11-.23-.18-.48-.31z"/></svg>),
+  chevron:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...p}><path d="M6 9l6 6 6-6"/></svg>),
+  arrow:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...p}><path d="M5 12h14M13 6l6 6-6 6"/></svg>),
+  sun:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...p}><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3"/></svg>),
+  moon:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...p}><path d="M20 14.5A8.2 8.2 0 0 1 9.5 4 8.2 8.2 0 1 0 20 14.5z"/></svg>),
+  back:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...p}><path d="M15 18l-6-6 6-6"/></svg>),
+  check:(p)=>(<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12.5l4.5 4.5L19 7"/></svg>),
+};
+
+/* ============================================================
+   NAV
+   ============================================================ */
+function Nav({solid, dark, onToggle, onCreate}){
+  return (
+    <nav className={'nav'+(solid?' solid':'')}>
+      <div className="nav-inner">
+        <div className="logo">SIY<span className="ai">AI</span></div>
+        <div className="nav-links">
+          <a href="#created">The films</a>
+          <a href="#how">How it works</a>
+          <a href="#gifts">Gifts</a>
+          <a href="#way">The SiyAI Way</a>
+        </div>
+        <div className="nav-actions">
+          <button className="theme-toggle" onClick={onToggle} aria-label="Toggle dark mode">
+            {dark ? <Icon.sun/> : <Icon.moon/>}
+          </button>
+          <button className="btn btn-light nav-talk" onClick={()=>{}}>Talk to us</button>
+          <button className="btn btn-primary btn-sm" onClick={onCreate}>
+            Create<span className="nav-cta-long"> a memory film</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+function Hero({onCreate, ping}){
+  return (
+    <header className="hero">
+      <div className="wrap">
+        <div className="hero-grid">
+          <div className="hero-left">
+            <div className="eyebrow hero-eyebrow">Films · Songs · Letters</div>
+            <h1 className="hero-headline">
+              Turn your<br/>memories into<br/><span className="films">films</span>
+            </h1>
+            <p className="hero-lead">Thirty seconds of their voice, an old photograph that smiles back — crafted by hand into something your family keeps forever.</p>
+            <div className="hero-cta-row">
+              <button className="btn btn-primary" onClick={onCreate}>Create a memory film</button>
+              <button className="btn btn-light" style={{height:'56px'}} onClick={()=>ping('Browsing the films…')}>See the films</button>
+            </div>
+            <div className="hero-trust">
+              <div className="t"><b>10,000+</b><span>families</span></div>
+              <div className="t"><b>4.9/5</b><span>rating</span></div>
+              <div className="t"><b>50,000+</b><span>gifts made</span></div>
+            </div>
+          </div>
+          <div className="hero-right">
+            <div className="film-grid">
+              {FILMS.map((f,i)=>(
+                <div className="film-card" key={i} style={{background:f.grad}}>
+                  <Grain opacity={0.14}/>
+                  <div className="film-no">{f.no} · Film</div>
+                  <div className="film-cap">{f.cap}</div>
+                  <div className="film-foot">
+                    <span className="film-for">{f.who}</span>
+                    <span className="film-dur">{f.dur}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="hero-tiles">
+          {[['01','Upload'],['02','Preserve'],['03','Share']].map(t=>(
+            <button className="glass-tile" key={t[1]}>
+              <div className="gt-in">
+                <span className="gt-n">{t[0]}</span>
+                <span className="lbl">{t[1]}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ============================================================
+   LANGUAGE STRIP
+   ============================================================ */
+function LangStrip(){
+  const items=[
+    ['सुनो, नन्हे','Hindi'],['విను, చిన్నారి','Telugu'],['கேள், செல்லம்','Tamil'],
+    ['শোনো, সোনা','Bengali'],['ਸੁਣ, ਬੱਚਿਆ','Punjabi'],['ऐक, बाळा','Marathi'],
+  ];
+  const row=[...items,...items];
+  return (
+    <div className="lang-strip">
+      <div className="lang-track">
+        {row.map((it,i)=>(
+          <span className="lang-item" key={i}>
+            <span className="leaf"></span>
+            <span className="lang-native">{it[0]}</span>
+            <span className="lang-en">{it[1]}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   CREATED
+   ============================================================ */
+function Created({onMake}){
+  const [tab,setTab]=useState(0);
+  return (
+    <section className="section" id="created">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <div className="lead">
+            <div className="eyebrow">The films</div>
+            <h2 className="h-serif">What we created for people</h2>
+            <p className="sub">Films, songs, voice letters and more — every one made by hand.</p>
+          </div>
+          <div className="tabs" style={{border:'none',margin:0}}>
+            {TABS.slice(0,5).map((t,i)=>(
+              <button className={'tab'+(i===tab?' active':'')} key={t} onClick={()=>setTab(i)} style={{paddingBottom:'10px'}}>
+                {t}<span className="ink"></span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="created-grid">
+          {CREATED.map((c,i)=>(
+            <div className={'created-card reveal d'+i} key={i}>
+              <Ph grad={c.grad}/>
+              <div className="veil"></div>
+              <div className="created-name">{c.name[0]} <span className="arr">→</span> {c.name[1]}</div>
+              <div className="created-meta">{c.meta}</div>
+              <button className="btn btn-primary btn-sm" onClick={onMake}>Make like this</button>
+            </div>
+          ))}
+        </div>
+        <div className="stats-band reveal">
+          <div className="stat"><b>10,000+</b><span>families trusted us</span></div>
+          <div className="stat"><b>4.9/5</b><span>average rating</span></div>
+          <div className="stat"><b>50,000+</b><span>memories gifted</span></div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   PRODUCTS
+   ============================================================ */
+function Products({onGift}){
+  return (
+    <section className="section tight" id="gifts" style={{background:'var(--paper-2)'}}>
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <div className="lead">
+            <div className="eyebrow">The gifts</div>
+            <h2 className="h-serif">The most personal gift they will ever receive</h2>
+            <p className="sub">Ready in hours. Delivered straight to WhatsApp.</p>
+          </div>
+          <a className="see-all" href="#">See all gifts <Icon.arrow/></a>
+        </div>
+        <div className="prod-grid">
+          {PRODUCTS.map((p,i)=>(
+            <div className={'prod-card reveal d'+(i%4)} key={i}>
+              <div className="prod-media">
+                <Ph grad={p.grad}/>
+                <div className="badge-row">
+                  <span className="badge">{p.off}</span>
+                  <span className="badge">{p.ready}</span>
+                </div>
+                {p.stock && <span className="badge stock">{p.stock}</span>}
+              </div>
+              <div className="prod-body">
+                <div className="prod-name">{p.name}</div>
+                <div className="prod-desc">{p.desc}</div>
+                <div className="prod-rate"><span className="star">★</span> {p.rate} <span className="n">({p.count})</span></div>
+                <div className="prod-price"><b>₹{p.price}</b><s>₹{p.was}</s></div>
+                <div className="prod-deliver">Free delivery</div>
+                <button className="btn btn-primary btn-sm" onClick={()=>onGift(p)}>Gift this</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   MOMENTS
+   ============================================================ */
+function Moments(){
+  const [sel,setSel]=useState(null);
+  return (
+    <section className="section dark-sec">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <div className="lead">
+            <h2 className="h-serif moment-title">Pick the <span className="gold">moment.</span> We'll find the story</h2>
+            <p className="sub moment-sub">Har pal mein ek kahani chupi hai</p>
+          </div>
+        </div>
+        <div className="moment-grid">
+          {MOMENTS.map((m,i)=>(
+            <button className={'moment-tile reveal d'+(i%4)+(sel===i?' sel':'')} key={m} onClick={()=>setSel(sel===i?null:i)}>
+              <span className="dot"></span>{m}
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   HOW IT WORKS
+   ============================================================ */
+function HowItWorks(){
+  const desc=[
+    'Send a photo, a voice note, or just tell us the memory.',
+    'Our team crafts your film, song or letter by hand.',
+    'It arrives on WhatsApp, archived in your vault forever.',
+  ];
+  return (
+    <section className="section how" id="how">
+      <div className="wrap">
+        <span className="eyebrow reveal">How it works</span>
+        <h2 className="how-title reveal">Three steps. <span className="accent">That's it.</span></h2>
+        <div className="steps-row">
+          {STEPS.map((s,i)=>(
+            <div className="step reveal" key={i} style={{transitionDelay:(i*0.1)+'s'}}>
+              <div className="device">
+                <div className="notch"></div>
+                <div className="scr"><Ph grad={s.grad} grain={s.label!=='Upload'}/></div>
+              </div>
+              <div className="step-num">{s.n}</div>
+              <div className="step-label">{s.label}</div>
+              <p className="step-desc">{desc[i]}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   SIYAI WAY
+   ============================================================ */
+function SiyaiWay(){
+  return (
+    <section className="section tight" id="way">
+      <div className="wrap">
+        <h2 className="way-title reveal">The SiyAI Way</h2>
+        <div className="way-card reveal">
+          {WAY.map((w,i)=>{
+            const I=Icon[w.ic];
+            return (
+              <div className="way-item" key={i}>
+                <I className="ic"/>
+                <h4>{w.h}</h4>
+                <p>{w.p}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   LOVE
+   ============================================================ */
+function Love(){
+  return (
+    <section className="section tight">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <div className="lead">
+            <div className="eyebrow">Kind words</div>
+            <h2 className="h-serif">Love for Siyai</h2>
+          </div>
+          <a className="see-all" href="#">Read more stories <Icon.arrow/></a>
+        </div>
+        <div className="love-grid">
+          {LOVE.map((l,i)=>(
+            <div className={'love-card c'+i+' reveal d'+i} key={i}>
+              <div className="love-stars">★★★★★</div>
+              <div className="love-quote">"{l.quote}"</div>
+              <div className="love-by">
+                <div>
+                  <div className="love-name">{l.name}</div>
+                  <div className="love-loc">{l.loc}</div>
+                </div>
+                <div className="love-tag">{l.tag}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   NOT SURE
+   ============================================================ */
+function NotSure({onCreate}){
+  return (
+    <section className="section tight">
+      <div className="notsure-wrap">
+        <div className="notsure reveal">
+          <h3>Not sure what to create?</h3>
+          <p>Tell us about your memory, and we'll help you find the perfect way to keep it.</p>
+          <button className="btn btn-primary" onClick={onCreate}>
+            <Icon.whatsapp width="20" height="20"/> Talk to our team
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   MORE SOON
+   ============================================================ */
+function MoreSoon(){
+  return (
+    <section className="section tight">
+      <div className="wrap">
+        <div className="sec-head reveal" style={{marginBottom:'40px'}}>
+          <div className="lead">
+            <div className="eyebrow">On the way</div>
+            <h2 className="h-serif">More from SiyAI soon</h2>
+          </div>
+        </div>
+        <div className="more-grid">
+          <div className="more-card capsule reveal">
+            <span className="lbl">Timeless</span>
+            <div className="more-name">Time<b>Capsule</b></div>
+            <p className="more-sub">Record a message today, delivered to someone you love on a date far in the future.</p>
+            <button className="more-pill">Know more</button>
+          </div>
+          <div className="more-card legacy reveal d1">
+            <span className="lbl">Forever</span>
+            <div className="more-name">Legacy<b>Vault</b></div>
+            <p className="more-sub">A private, encrypted home for your family's films, voices and stories — passed down for generations.</p>
+            <button className="more-pill">Know more</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   NOTE
+   ============================================================ */
+function Note({onCreate}){
+  return (
+    <section className="section">
+      <div className="wrap">
+        <div className="note reveal">
+          <span className="eyebrow">A note from us</span>
+          <p>We're building SiyAI so anyone can hold on to the moments that matter most. One film, one song, one letter at a time, made by hand.</p>
+          <p>If you've read this far, message us. We'd love to hear who you're making this for.</p>
+          <div className="note-cta">
+            <button className="btn btn-primary" onClick={onCreate}>Gift a memory</button>
+            <button className="btn btn-ghost" onClick={onCreate}>Preserve your own</button>
+          </div>
+          <div className="sign">
+            <div className="sign-mono"><span>S</span><span>A</span><span>R</span></div>
+            <div className="sign-by">— Sushant, Anjali &amp; Ravi</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+function FAQ(){
+  const [open,setOpen]=useState(0);
+  return (
+    <section className="section" style={{background:'var(--paper-2)'}}>
+      <div className="wrap">
+        <div className="faq-grid">
+          <h2 className="faq-title reveal">
+            Things people ask us
+            <span className="sub">Still wondering? Message us on WhatsApp — a real person replies.</span>
+          </h2>
+          <div className="faq-list reveal d1">
+            {FAQS.map((f,i)=>{
+              const isOpen=open===i;
+              return (
+                <div className={'faq-item'+(isOpen?' open':'')} key={i}>
+                  <button className="faq-q" onClick={()=>setOpen(isOpen?-1:i)}>
+                    {f.q}<Icon.chevron className="chev"/>
+                  </button>
+                  <div className="faq-a" ref={el=>{ if(el) el.style.maxHeight=isOpen?el.scrollHeight+'px':'0px'; }}>
+                    <div className="faq-a-inner">{f.a}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+function Footer(){
+  return (
+    <footer className="footer">
+      <div className="wrap">
+        <div className="foot-grid">
+          <div className="foot-brand">
+            <div className="logo">SIY<span style={{color:'var(--gold)'}}>AI</span></div>
+            <div className="foot-eyebrow">An emotional platform · End to end</div>
+            <div className="foot-lead">A living world made from the memories of the people we love.</div>
+            <p className="foot-desc">Built by people, for the people you love. Crafted in India.</p>
+          </div>
+          <div className="foot-col">
+            <h5>What we make</h5>
+            <div className="foot-links">{FOOTER_MAKE.map(l=><a key={l} href="#">{l}</a>)}</div>
+          </div>
+          <div className="foot-col">
+            <h5>Find us</h5>
+            <div className="foot-links">{FOOTER_FIND.map(l=><a key={l} href="#">{l}</a>)}</div>
+          </div>
+        </div>
+        <div className="foot-rule"></div>
+        <div className="foot-bottom">
+          <span>© 2026 SIYAI</span>
+          <span>Crafted in India · For families everywhere</span>
+        </div>
+      </div>
+      <div className="foot-big">Leave your memories to us</div>
+    </footer>
+  );
+}
+
+/* ============================================================
+   ORDER MODAL
+   ============================================================ */
+function OrderModal({order, onClose}){
+  const [step,setStep]=useState(0);
+  const [data,setData]=useState({recipient:'',relation:'',occasion:'',language:'',name:'',phone:''});
+  const WA_NUMBER='919000000000';
+
+  useEffect(()=>{
+    if(order){ setStep(0); setData({recipient:'',relation:'',occasion:'',language:'',name:'',phone:''}); }
+  },[order && order.name]);
+
+  useEffect(()=>{
+    const onKey=e=>{ if(e.key==='Escape') onClose(); };
+    if(order) window.addEventListener('keydown',onKey);
+    return ()=>window.removeEventListener('keydown',onKey);
+  },[order,onClose]);
+
+  if(!order) return null;
+  const set=(k,v)=>setData(d=>({...d,[k]:v}));
+
+  const canNext=[
+    data.relation, data.occasion, data.language,
+    (data.name.trim() && data.phone.trim().length>=10)
+  ][step];
+
+  const waText=encodeURIComponent(
+    `Hi SiyAI! I'd like to create a ${order.name}`+
+    (data.relation?` for my ${data.relation}`:'')+
+    (data.occasion?` — ${data.occasion}`:'')+
+    (data.language?` (${data.language})`:'')+
+    '.'
+  );
+  const waHref=`https://wa.me/${WA_NUMBER}?text=${waText}`;
+  const orderNo='10'+String(42+(order.name.length||0)).slice(0,2);
+
+  const next=()=>step<3?setStep(step+1):setStep(4);
+  const back=()=>step>0&&step<4&&setStep(step-1);
+
+  const titles=['Who is it for?','The occasion','Their language','Almost there'];
+  const subs=[
+    "We'll shape the story around them.",
+    'So the words land at the right moment.',
+    'The way your family actually speaks.',
+    "Where we'll send the finished film.",
+  ];
+
+  return (
+    <div className={'dof-overlay'+(order?' show':'')} onClick={onClose}>
+      <div className={'dof-modal'+(order?' in':'')} role="dialog" aria-modal="true" onClick={e=>e.stopPropagation()}>
+        {/* left rail */}
+        <aside className="dof-rail" style={{background:order.grad}}>
+          <div className="dof-rail-veil"></div>
+          <div className="dof-rail-top">
+            <div className="logo">SIY<span className="ai">AI</span></div>
+          </div>
+          <div className="dof-rail-mid">
+            <div className="dof-rail-kicker">{step<4?"You're creating":'Confirmed'}</div>
+            <div className="dof-rail-name">{order.name}</div>
+            <div className="dof-rail-price">
+              <b>₹{order.price}</b>
+              {order.was && <s>₹{order.was}</s>}
+            </div>
+          </div>
+          <ul className="dof-trust">
+            <li><Icon.people/> Crafted by real filmmakers</li>
+            <li><Icon.whatsapp width="18" height="18"/> Delivered on WhatsApp</li>
+            <li><Icon.shield/> {order.ready||'Ready in 48 hrs'} · loved or refunded</li>
+          </ul>
+        </aside>
+
+        {/* main */}
+        <div className="dof-main">
+          <button className="dof-x" onClick={onClose} aria-label="Close">×</button>
+
+          {step<4 ? (
+            <>
+              <div className="dof-dots">
+                {[0,1,2,3].map(i=>(
+                  <span key={i} className={'dof-dot'+(i===step?' cur':'')+(i<step?' done':'')}></span>
+                ))}
+              </div>
+              <div className="dof-step" key={step}>
+                <h3 className="dof-title">{titles[step]}</h3>
+                <p className="dof-sub">{subs[step]}</p>
+
+                {step===0 && (
+                  <div className="dof-fields">
+                    <div className="dof-chips">
+                      {D_RELATIONS.map(r=>(
+                        <button type="button" key={r} className={'dof-chip'+(data.relation===r?' on':'')} onClick={()=>set('relation',r)}>{r}</button>
+                      ))}
+                    </div>
+                    <label className="dof-label">Their name <span>(optional)</span></label>
+                    <input className="dof-input" placeholder="e.g. Sushila" value={data.recipient} onChange={e=>set('recipient',e.target.value)}/>
+                  </div>
+                )}
+                {step===1 && (
+                  <div className="dof-chips">
+                    {D_OCCASIONS.map(o=>(
+                      <button type="button" key={o} className={'dof-chip'+(data.occasion===o?' on':'')} onClick={()=>set('occasion',o)}>{o}</button>
+                    ))}
+                  </div>
+                )}
+                {step===2 && (
+                  <div className="dof-chips">
+                    {D_LANGS.map(l=>(
+                      <button type="button" key={l} className={'dof-chip'+(data.language===l?' on':'')} onClick={()=>set('language',l)}>{l}</button>
+                    ))}
+                  </div>
+                )}
+                {step===3 && (
+                  <div className="dof-fields">
+                    <div className="dof-row2">
+                      <div>
+                        <label className="dof-label">Your name</label>
+                        <input className="dof-input" placeholder="e.g. Priya" value={data.name} onChange={e=>set('name',e.target.value)}/>
+                      </div>
+                      <div>
+                        <label className="dof-label">WhatsApp number</label>
+                        <input className="dof-input" inputMode="numeric" placeholder="+91 ·····" value={data.phone} onChange={e=>set('phone',e.target.value.replace(/[^\d+ ]/g,''))}/>
+                      </div>
+                    </div>
+                    <div className="dof-summary">
+                      <div className="dof-srow"><span>For</span><b>{data.relation}{data.recipient?` · ${data.recipient}`:''}</b></div>
+                      <div className="dof-srow"><span>Occasion</span><b>{data.occasion}</b></div>
+                      <div className="dof-srow"><span>Language</span><b>{data.language}</b></div>
+                      <div className="dof-srow total"><span>{order.name}</span><b>₹{order.price}</b></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="dof-foot">
+                <div className="dof-actions">
+                  {step>0 && (
+                    <button className="dof-back" onClick={back}>
+                      <Icon.back/> Back
+                    </button>
+                  )}
+                  <button className="btn btn-primary dof-next" disabled={!canNext} onClick={next}>
+                    {step<3?'Continue':`Pay ₹${order.price}`}
+                  </button>
+                </div>
+                <a className="dof-wa" href={waHref} target="_blank" rel="noopener">
+                  Prefer to chat? Message us on WhatsApp <Icon.arrow/>
+                </a>
+              </div>
+            </>
+          ) : (
+            <div className="dof-done">
+              <div className="dof-check"><Icon.check width="36" height="36"/></div>
+              <h3 className="dof-title">Payment confirmed</h3>
+              <p className="dof-sub">Order <b>#{orderNo}</b> · we've reserved a filmmaker for {data.relation||'your family'}.</p>
+              <div className="dof-hand">
+                <div className="dof-hand-row"><Icon.whatsapp width="20" height="20"/><span>Continue on WhatsApp</span></div>
+                <p>Send a few photos, a voice note, or just tell us the memory — right where you already chat. Your film arrives there in {order.ready?order.ready.replace('Ready in ',''):'a few hours'}.</p>
+              </div>
+              <div className="dof-done-cta">
+                <a className="btn btn-primary dof-next" href={waHref} target="_blank" rel="noopener">
+                  <Icon.whatsapp width="20" height="20"/> Open WhatsApp
+                </a>
+                <button className="dof-wa" onClick={onClose}>Back to SiyAI</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+function Toast({msg}){
+  return <div className={'toast'+(msg?' show':'')}>{msg}</div>;
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+function App(){
+  const [solid,setSolid]=useState(false);
+  const [dark,setDark]=useState(()=>{
+    try{ return localStorage.getItem('siyai-theme')==='dark'; }catch(e){ return false; }
+  });
+  const [toast,setToast]=useState('');
+  const [order,setOrder]=useState(null);
+  const tRef=useRef(null);
+
+  const ping=useCallback((m)=>{
+    setToast(m);
+    clearTimeout(tRef.current);
+    tRef.current=setTimeout(()=>setToast(''),2200);
+  },[]);
+
+  const startOrder=useCallback((p)=>{
+    setOrder(p || PRODUCTS[0]);
+  },[]);
+
+  useEffect(()=>{
+    document.body.style.overflow=order?'hidden':'';
+  },[order]);
+
+  useEffect(()=>{
+    document.body.classList.toggle('dark',dark);
+    try{ localStorage.setItem('siyai-theme',dark?'dark':'light'); }catch(e){}
+  },[dark]);
+
+  useEffect(()=>{
+    const onScroll=()=>setSolid(window.scrollY>620);
+    window.addEventListener('scroll',onScroll,{passive:true});
+    onScroll();
+    return ()=>window.removeEventListener('scroll',onScroll);
+  },[]);
+
+  useEffect(()=>{
+    const els=document.querySelectorAll('.reveal');
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{threshold:0.12,rootMargin:'0px 0px -6% 0px'});
+    els.forEach(el=>io.observe(el));
+    return ()=>io.disconnect();
+  },[]);
+
+  return (
+    <div className="page">
+      <Nav solid={solid} dark={dark} onToggle={()=>setDark(d=>!d)} onCreate={()=>startOrder()}/>
+      <Hero onCreate={()=>startOrder()} ping={ping}/>
+      <LangStrip/>
+      <Created onMake={()=>startOrder()}/>
+      <Products onGift={startOrder}/>
+      <Moments/>
+      <HowItWorks/>
+      <SiyaiWay/>
+      <Love/>
+      <NotSure onCreate={()=>startOrder()}/>
+      <MoreSoon/>
+      <Note onCreate={()=>startOrder()}/>
+      <FAQ/>
+      <Footer/>
+      <Toast msg={toast}/>
+      <OrderModal order={order} onClose={()=>setOrder(null)}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
