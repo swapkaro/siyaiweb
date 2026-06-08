@@ -1,10 +1,32 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { CREATED, TABS } from '@/lib/data'
-import { Ph } from './Icons'
+import { Ph, Icon } from './Icons'
 
 export default function Created() {
   const [tab, setTab] = useState(0)
+  const [muted, setMuted] = useState(true)
+  const [lightbox, setLightbox] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const lightboxVideo = CREATED.find(c => c.video)
+
+  useEffect(() => {
+    if (videoRef.current) videoRef.current.muted = muted
+  }, [muted])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setLightbox(false) }
+    if (lightbox) window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightbox])
+
+  useEffect(() => {
+    if (!lightbox) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [lightbox])
+
   return (
     <section className="section" id="created">
       <div className="wrap">
@@ -24,9 +46,24 @@ export default function Created() {
         </div>
         <div className="created-grid">
           {CREATED.map((c, i) => (
-            <div className={'created-card reveal d' + i} key={i}>
+            <div
+              className={'created-card reveal d' + i}
+              key={i}
+              onClick={() => c.video && setLightbox(true)}
+              style={c.video ? { cursor: 'pointer' } : undefined}
+            >
               {c.video ? (
-                <video className="ph" src={c.video} autoPlay muted loop playsInline />
+                <>
+                  <video ref={videoRef} className="ph" src={c.video} autoPlay muted={muted} loop playsInline />
+                  <button
+                    type="button"
+                    className="vid-mute"
+                    aria-label={muted ? 'Unmute preview' : 'Mute preview'}
+                    onClick={e => { e.stopPropagation(); setMuted(m => !m) }}
+                  >
+                    {muted ? <Icon.mute width={18} height={18} /> : <Icon.volume width={18} height={18} />}
+                  </button>
+                </>
               ) : (
                 <Ph grad={c.grad} />
               )}
@@ -42,6 +79,17 @@ export default function Created() {
           <div className="stat"><b>50,000+</b><span>memories gifted</span></div>
         </div>
       </div>
+
+      {lightboxVideo && (
+        <div className={'vid-overlay' + (lightbox ? ' show' : '')} onClick={() => setLightbox(false)}>
+          <div className={'vid-modal' + (lightbox ? ' in' : '')} role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+            <button className="dof-x vid-x" onClick={() => setLightbox(false)} aria-label="Close">×</button>
+            {lightbox && (
+              <video className="vid-modal-el" src={lightboxVideo.video} controls autoPlay playsInline />
+            )}
+          </div>
+        </div>
+      )}
     </section>
   )
 }

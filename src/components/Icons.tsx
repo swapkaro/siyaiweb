@@ -23,6 +23,19 @@ export function Ph({ grad, grain = true }: { grad: string; grain?: boolean }) {
 }
 
 export const Icon = {
+  volume: (p: P) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}>
+      <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" />
+      <path d="M16 9a4.2 4.2 0 0 1 0 6" />
+      <path d="M18.4 6.6a7.7 7.7 0 0 1 0 10.8" />
+    </svg>
+  ),
+  mute: (p: P) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}>
+      <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4z" />
+      <path d="M16.5 10l4 4M20.5 10l-4 4" />
+    </svg>
+  ),
   people: (p: P) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" {...p}>
       <path d="M16 19v-1.5A3.5 3.5 0 0 0 12.5 14h-5A3.5 3.5 0 0 0 4 17.5V19" />
