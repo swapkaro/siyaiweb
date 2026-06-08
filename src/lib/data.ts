@@ -19,9 +19,9 @@ export const FILMS: Film[] = [
   { no: 'N° 021', grad: GRAD.slate,    cap: 'Still the same laugh after 40 years.',    who: 'For Maa · Anniversary',         dur: '01:32' },
 ]
 
-export type CreatedItem = { grad: string; name: [string, string]; meta: string }
+export type CreatedItem = { grad: string; name: [string, string]; meta: string; video?: string }
 export const CREATED: CreatedItem[] = [
-  { grad: GRAD.ink,      name: ['Anjali', "Papa's 60th"], meta: 'Sepia Dadaji · Voice Letter'  },
+  { grad: GRAD.ink,      name: ['Anjali', "Papa's 60th"], meta: 'Sepia Dadaji · Voice Letter', video: '/videos/vid1.mp4' },
   { grad: GRAD.dusk,     name: ['Rahul',  'Mummy'],        meta: 'NRI Family · Living Portrait' },
   { grad: GRAD.emerald,  name: ['Sneha',  'Dadi'],         meta: 'Kitchen Tapes · Memory Film'  },
   { grad: GRAD.goldwarm, name: ['Vikram', 'Nana ji'],      meta: 'War Stories · Custom Song'    },

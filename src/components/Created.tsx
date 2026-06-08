@@ -25,7 +25,11 @@ export default function Created() {
         <div className="created-grid">
           {CREATED.map((c, i) => (
             <div className={'created-card reveal d' + i} key={i}>
-              <Ph grad={c.grad} />
+              {c.video ? (
+                <video className="ph" src={c.video} autoPlay muted loop playsInline />
+              ) : (
+                <Ph grad={c.grad} />
+              )}
               <div className="veil" />
               <div className="created-name">{c.name[0]} <span className="arr">→</span> {c.name[1]}</div>
               <div className="created-meta">{c.meta}</div>
