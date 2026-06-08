@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { CREATED, TABS } from '@/lib/data'
 import { Ph } from './Icons'
 
-export default function Created({ onMake }: { onMake: () => void }) {
+export default function Created() {
   const [tab, setTab] = useState(0)
   return (
     <section className="section" id="created">
@@ -29,7 +29,6 @@ export default function Created({ onMake }: { onMake: () => void }) {
               <div className="veil" />
               <div className="created-name">{c.name[0]} <span className="arr">→</span> {c.name[1]}</div>
               <div className="created-meta">{c.meta}</div>
-              <button className="btn btn-primary btn-sm" onClick={onMake}>Make like this</button>
             </div>
           ))}
         </div>

@@ -74,7 +74,7 @@ export default function LandingPage() {
       <Nav solid={solid} dark={dark} onToggle={() => setDark(d => !d)} onCreate={startOrder} />
       <Hero onCreate={startOrder} ping={ping} />
       <LangStrip />
-      <Created onMake={startOrder} />
+      <Created />
       <Products onGift={startOrder} />
       <Moments />
       <HowItWorks />
